@@ -1,39 +1,21 @@
 from typing import Callable
 import time
-from threading import Thread
+from .abstract_service import AbstractService
 
 
-class ReportService:
+class ReportService(AbstractService):
 
     # Initialization
 
     def __init__(self, get_users_count: Callable[[], int | None]):
+        super().__init__()
         self.get_users_count = get_users_count
         self.last_message_timestamp = 0
         self.interval_seconds = 3600 # 1 hour
-        self._is_running = False
 
-    # Service Interface Implementation
+    # AbstractService Implementation (private)
 
-    def start(self):
-        report_service_thread = Thread(target=self.run)
-        report_service_thread.start()
-
-    def run(self):
-        # Main service loop, may be a coroutine in async-await syntax
-        # can be private or public, depends if you want to allow to run the service manually
-        is_running = True
-        self.last_message_timestamp = 0
-        while self._is_running:
-            self._report_if_needed()
-            time.sleep(1)
-
-    def stop(self):
-        self._is_running = False
-
-    # Private
-
-    def _report_if_needed(self):
+    def _loop_iteration(self):
         now = time.monotonic()
         if now - self.last_message_timestamp > self.interval_seconds:
             last_message_timestamp = now

@@ -1,16 +1,30 @@
 from threading import Thread
 import weakref
+from python_app_architecture_demo.providers.mail_provider import MailProvider
+from python_app_architecture_demo.repository.user_repository import UserRepository
 import uvicorn
+import config
 from api import get_app as get_fastapi_app
 from entities.user import UserCreate
-from providers.user_provider import UserProvider
+from providers.user_provider import UserProvider, UserProviderImpl
 from services.report_service import ReportService
+from services.telegram_service import TelegramService
 
 
 class Coordinator:
 
     def __init__(self):
         self.users_count = 0 # some state that can be shared between different providers, services, layers, and the entire app
+
+        self.telegram_service = TelegramService(
+            token=config.telegram_token,
+            get_user_provider=lambda session: UserProviderImpl(
+                repository=UserRepository(session),
+                mail_provider=MailProvider(config.mail_token),
+                output=self, # UserProvider's lifecycle must be bound to short session's lifecycle, so it's safe to use strong references; maybe it's better to wrap providers in a context manager
+                on_user_created=self.on_user_created
+            )
+        )
 
         # self.report_service = ReportService(
         #     get_users_count = lambda: self.users_count # Be aware of circular references
@@ -58,11 +72,15 @@ class Coordinator:
         fastapi_app.state.coordinator = self
 
         # Start all services in separate threads
-        # Alternatively, you can use an coroutines-based concurrency approach with async-await syntax
-        # It's bit more complex, efficient and scalable, but the architecture will be the same
         fastapi_thread = Thread(target=lambda: uvicorn.run(fastapi_app))
         fastapi_thread.start()
-        self.report_service.start() # already runs in a separate thread inside the service
+
+        # already runs in a separate thread inside the service
+        self.report_service.start()
+        self.telegram_service.start()
+
+        # Alternatively, you can use an coroutines-based concurrency approach with async-await syntax
+        # It's bit more complex, efficient and scalable, but the architecture will be the same
 
     # UserProviderOutput Protocol Implementation
 

@@ -15,6 +15,7 @@ def user_provider(
     session: Annotated[Session, Depends(get_session)], # managed by FastAPI Dependency Injection system
     coordinator: Annotated[Coordinator, Depends(_get_coordinator)]
 ) -> UserProvider:
+    # UserProvider's lifecycle is bound to short endpoint's lifecycle, so it's safe to use strong references here
     return UserProviderImpl(
         repository=UserRepository(session),
         mail_provider=MailProvider(config.mail_token),
