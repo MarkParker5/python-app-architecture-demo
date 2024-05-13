@@ -1,7 +1,8 @@
 from threading import Thread
-from .abstract_service import AbstractService
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
+from ..abstract_service import AbstractService
+from api import get_app
 
 
 class ApiService(AbstractService):

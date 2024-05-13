@@ -1,11 +1,11 @@
 from threading import Thread
 import weakref
-from python_app_architecture_demo.providers.mail_provider import MailProvider
-from python_app_architecture_demo.repository.user_repository import UserRepository
 import uvicorn
 import config
-from api import get_app as get_fastapi_app
+from services.api_service import get_app as get_fastapi_app
 from entities.user import UserCreate
+from repository.user_repository import UserRepository
+from providers.mail_provider import MailProvider
 from providers.user_provider import UserProvider, UserProviderImpl
 from services.report_service import ReportService
 from services.telegram_service import TelegramService
