@@ -14,7 +14,8 @@ from services.telegram_service import TelegramService
 class Coordinator:
 
     def __init__(self):
-        self.users_count = 0 # some state that can be shared between different providers, services, layers, and the entire app
+        # some state can be shared between different providers, services, layers, and the entire app
+        self.users_count = 0
 
         self.telegram_service = TelegramService(
             token=config.telegram_token,
@@ -62,7 +63,7 @@ class Coordinator:
         # They shouldn't exist, but you may handle it safely anyway. Decide what to do in such cases:
         # raise an exception, provide a default value, log a warning, just ignore it, etc.
 
-    # Coordinator Interface Implementation
+    # Coordinator's Interface
 
     def setup_initial_state(self):
         fastapi_app = get_fastapi_app()

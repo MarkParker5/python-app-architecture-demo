@@ -8,8 +8,10 @@ from .database import get_session, Session
 import config
 
 
-def _get_coordinator(request: Request) -> Coordinator: # NOTE: You can pass the DIContainer is the same way
-    return request.app.state.coordinator # if hasattr(request.app.state, 'coordinator') else Coordinator()
+def _get_coordinator(request: Request) -> Coordinator:
+    # private helper function
+    # NOTE: You can pass the DIContainer in the same way
+    return request.app.state.coordinator
 
 def user_provider(
     session: Annotated[Session, Depends(get_session)], # managed by FastAPI Dependency Injection system
